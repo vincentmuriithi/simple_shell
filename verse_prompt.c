@@ -1,6 +1,6 @@
 #include "shell.h"
 #include <stdlib.h>
-//#include <string.h>
+#include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -32,6 +32,11 @@ printf("\n");
 break;
 }
 input[strcspn(input, "\n")] = '\0';
+
+if (strcmp(input, "exit") == 0)
+{
+exit(0);
+}
 arg_count = 0;
 token = strtok(input, " ");
 while (token != NULL)
