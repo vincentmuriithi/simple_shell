@@ -1,3 +1,4 @@
+#include "shell.h"
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -5,12 +6,14 @@
 #include <sys/wait.h>
 #define MAX_INPUT_LENGTH 1024
 /**
- * main - entry of program
- * Return: 0 upon success
- */
+* main - entry of program
+* Return: 0 upon success
+*/
 int main(void)
 {
+pid_t pid;
 char input[MAX_INPUT_LENGTH];
+
 while (1)
 {
 printf("($) ");
@@ -20,7 +23,7 @@ printf("\n");
 break;
 }
 input[strcspn(input, "\n")] = '\0';
-pid_t pid = fork();
+pid = fork();
 if (pid == -1)
 {
 perror("Fork failed");
