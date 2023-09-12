@@ -11,6 +11,9 @@
 */
 int main(void)
 {
+char *args[32];
+int arg_count;
+char *token = NULL;
 pid_t pid;
 char input[MAX_INPUT_LENGTH];
 
@@ -23,6 +26,16 @@ printf("\n");
 break;
 }
 input[strcspn(input, "\n")] = '\0';
+
+arg_count = 0;
+token = strtok(input, " ");
+while (token != NULL)
+{
+args[arg_count++] = token;
+token = strtok(NULL, " ");
+}
+args[arg_count] = NULL;
+
 pid = fork();
 if (pid == -1)
 {
@@ -31,7 +44,7 @@ exit(1);
 }
 else if (pid == 0)
 {
-if (execlp(input, input, (char *)NULL) == -1)
+if (execvp(args[0], args) == -1)
 {
 perror("Exec failed");
 exit(1);
@@ -43,7 +56,7 @@ int status;
 waitpid(pid, &status, 0);
 if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
 {
-printf("Command not found: %s\n", input);
+printf("Command not found: %s\n", args[0]);
 }
 }
 }
