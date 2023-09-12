@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+
 #define MAX_INPUT_LENGTH 1024
 /**
 * main - entry of program
@@ -15,7 +16,12 @@ char *args[32];
 int arg_count;
 char *token = NULL;
 pid_t pid;
+char *path = getenv("PATH");
 char input[MAX_INPUT_LENGTH];
+
+
+if (path == NULL)
+error_exit(1, "Failed to get PATH environment variable");
 
 while (1)
 {
@@ -26,7 +32,6 @@ printf("\n");
 break;
 }
 input[strcspn(input, "\n")] = '\0';
-
 arg_count = 0;
 token = strtok(input, " ");
 while (token != NULL)
@@ -44,6 +49,7 @@ exit(1);
 }
 else if (pid == 0)
 {
+
 if (execvp(args[0], args) == -1)
 {
 perror("Exec failed");
