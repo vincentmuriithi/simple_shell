@@ -19,8 +19,7 @@ pid_t pid;
 int arg_count = 0;
 char **env = NULL;
 char *path = getenv("PATH");
-char input[MAX_INPUT_LENGTH];
-
+char *input = NULL;
 
 if (path == NULL)
 error_exit(1, "Failed to get PATH environment variable");
@@ -28,11 +27,7 @@ error_exit(1, "Failed to get PATH environment variable");
 while (1)
 {
 printf("($) ");
-if (fgets(input, sizeof(input), stdin) == NULL)
-{
-printf("\n");
-break;
-}
+input = my_getline();
 input[strcspn(input, "\n")] = '\0';
 
 if (strcmp(input, "exit") == 0)

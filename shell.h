@@ -19,4 +19,6 @@ int check_command(const char *command, const char *path, char *full_path, size_t
 void error_exit(int exit_code, const char *message);
 int custom_tokenize(char *input, char **args);
 
+char *my_getline(void);
+
 #endif
