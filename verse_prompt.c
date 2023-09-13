@@ -34,6 +34,28 @@ if (strcmp(input, "exit") == 0)
 {
 exit(0);
 }
+if (strncmp(input, "setenv ", 7) == 0) {
+char *var_val = input + 7;
+char *var = strtok(var_val, " ");
+char *val = strtok(NULL, " ");
+if (var && val) {
+if (setenv(var, val, 1) == -1) {
+perror("setenv");
+}
+} else {
+fprintf(stderr, "Usage: setenv VARIABLE VALUE\n");
+}
+}
+if (strncmp(input, "unsetenv ", 9) == 0) {
+char *var = input + 9;
+if (var) {
+if (unsetenv(var) == -1) {
+perror("unsetenv");
+}
+} else {
+fprintf(stderr, "Usage: unsetenv VARIABLE\n");
+}
+}
 if (strcmp(input, "env") == 0)
 {
 env = environ;
