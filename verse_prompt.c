@@ -20,6 +20,8 @@ int count = 0;
 char **env = NULL;
 char *path = getenv("PATH");
 char *input = NULL;
+char *status_str = NULL;
+int status = 0;
 
 if (path == NULL)
 error_exit(1, "Failed to get PATH environment variable");
@@ -55,6 +57,11 @@ perror("unsetenv");
 } else {
 fprintf(stderr, "Usage: unsetenv VARIABLE\n");
 }
+else if (strncmp(input, "exit ", 5) == 0)
+{
+status_str = input + 5;
+status = atoi(status_str);
+exit(status);
 }
 if (strcmp(input, "env") == 0)
 {
