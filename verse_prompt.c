@@ -2,10 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <errno.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 
 #define MAX_INPUT_LENGTH 1024
+extern char **environ;
 /**
 * main - entry of program
 * Return: 0 upon success
@@ -16,6 +18,7 @@ char *args[32];
 int arg_count;
 char *token = NULL;
 pid_t pid;
+char **env = NULL;
 char *path = getenv("PATH");
 char *input = NULL;
 
@@ -32,6 +35,16 @@ if (strcmp(input, "exit") == 0)
 {
 exit(0);
 }
+if (strcmp(input, "env") == 0)
+        {
+            env = environ;
+            while (*env)
+            {
+                printf("%s\n", *env);
+                env++;
+            }
+            continue; 
+        }
 arg_count = 0;
 token = strtok(input, " ");
 while (token != NULL)
