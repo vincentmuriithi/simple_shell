@@ -16,7 +16,7 @@ int main(void)
 {
 char *args[32];
 pid_t pid;
-int arg_count = 0;
+int count = 0;
 char **env = NULL;
 char *path = getenv("PATH");
 char *input = NULL;
@@ -53,7 +53,9 @@ env++;
 continue;
 }
 
-arg_count = custom_tokenize(input, args);
+
+count = custom_tokenize(input, args);
+args[count] = NULL;
 pid = fork();
 if (pid == -1)
 {

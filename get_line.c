@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #include "shell.h"
 /**
- * my_getline - reads a line from srandard input
- * Return: pointer
- */
+* my_getline - reads a line from srandard input
+* Return: pointer
+*/
 char *my_getline(void)
 {
 char *line = NULL;
