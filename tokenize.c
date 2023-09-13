@@ -5,8 +5,7 @@
 * @args: An array to store the tokens
 * Return: The number of tokens found
 */
-int custom_tokenize(char *input, char **args)
-{
+int custom_tokenize(char *input, char **args) {
 int arg_count = 0;
 char *token;
 char *delimiter = " ";
@@ -17,6 +16,8 @@ input++;
 
 if (*input) {
 token = input;
+while (*input && !strchr(delimiter, *input))
+input++;
 
 if (*input)
 *input++ = '\0';
