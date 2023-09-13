@@ -15,9 +15,8 @@ extern char **environ;
 int main(void)
 {
 char *args[32];
-int arg_count;
-char *token = NULL;
 pid_t pid;
+int arg_count = 0;
 char **env = NULL;
 char *path = getenv("PATH");
 char input[MAX_INPUT_LENGTH];
@@ -41,24 +40,17 @@ if (strcmp(input, "exit") == 0)
 exit(0);
 }
 if (strcmp(input, "env") == 0)
-        {
-            env = environ;
-            while (*env)
-            {
-                printf("%s\n", *env);
-                env++;
-            }
-            continue; 
-        }
-arg_count = 0;
-token = strtok(input, " ");
-while (token != NULL)
 {
-args[arg_count++] = token;
-token = strtok(NULL, " ");
+env = environ;
+while (*env)
+{
+printf("%s\n", *env);
+env++;
 }
-args[arg_count] = NULL;
+continue;
+}
 
+arg_count = custom_tokenize(input, args);
 pid = fork();
 if (pid == -1)
 {
