@@ -22,6 +22,10 @@ char *path = getenv("PATH");
 char *input = NULL;
 char *status_str = NULL;
 int status = 0;
+char *setenv_args[3];
+int setenv_count = 0;
+char *unsetenv_args[2];
+int unsetenv_count = 0;
 
 if (path == NULL)
 error_exit(1, "Failed to get PATH environment variable");
@@ -42,37 +46,42 @@ status_str = input + 5;
 status = atoi(status_str);
 exit(status);
 }
-if (strncmp(input, "setenv ", 7) == 0)
+else if (strncmp(input, "setenv ", 7) == 0)
 {
-char *var_val = input + 7;
-char *var = strtok(var_val, " ");
-char *val = strtok(NULL, " ");
-if (var && val)
-{
-if (setenv(var, val, 1) == -1)
-{
-perror("setenv");
-}
-}
-else
+
+setenv_count = custom_tokenize(input, setenv_args);
+
+if (setenv_count != 3)
 {
 fprintf(stderr, "Usage: setenv VARIABLE VALUE\n");
 }
-}
-if (strncmp(input, "unsetenv ", 9) == 0)
-{
-char *var = input + 9;
-if (var)
-{
-if (unsetenv(var) == -1)
-{
-perror("unsetenv");
-}
-}
 else
+{
+if (setenv(setenv_args[1], setenv_args[2], 1) != 0)
+{
+fprintf(stderr, "Failed to set environment variable.\n");
+}
+}
+continue;
+}
+else if (strncmp(input, "unsetenv ", 9) == 0)
+{
+unsetenv_count = custom_tokenize(input, unsetenv_args);
+
+if (unsetenv_count != 2)
 {
 fprintf(stderr, "Usage: unsetenv VARIABLE\n");
 }
+else
+{
+if (unsetenv(unsetenv_args[1]) != 0)
+{
+fprintf(stderr, "Failed to unset environment variable.\n");
+}
+}
+continue;
+}
+
 if (strcmp(input, "env") == 0)
 {
 env = environ;
@@ -94,6 +103,9 @@ perror("Fork failed");
 exit(1);
 }
 else if (pid == 0)
+{
+
+if (execvp(args[0], args) == -1)
 {
 perror("Exec failed");
 exit(1);
