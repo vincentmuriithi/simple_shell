@@ -1,37 +1,54 @@
 #include "shell.h"
 #include <stdio.h>
-
-extern char **environ;
+#include <stdlib.h>
+#include <unistd.h>
 /**
-* change_directory - Change the current working directory
-* @new_dir: The directory to change to
-* Return: 0 on success, -1 on failure
+* change_directory - Change the current working directory.
+* @path: The directory path to change to.
+* Return: 0 on success, -1 on failure.
 */
-int change_directory(char *new_dir)
+int change_directory(const char *path)
 {
-char current_dir[PATH_MAX];
-if (getcwd(current_dir, sizeof(current_dir)) == NULL) {
+char *oldpwd = NULL;
+char *currentpwd = NULL;
+
+oldpwd = getcwd(NULL, 0);
+if (oldpwd == NULL) {
 perror("getcwd");
 return (-1);
 }
-
-if (chdir(new_dir) == -1)
+if (chdir(path) == -1)
 {
-
 perror("chdir");
+free(oldpwd);
 return (-1);
 }
 
-if (setenv("PWD", getcwd(NULL, 0), 1) == -1) {
-perror("setenv");
+currentpwd = getcwd(NULL, 0);
+if (currentpwd == NULL) {
+perror("getcwd");
+free(oldpwd);
 return (-1);
 }
 
-if (setenv("OLDPWD", current_dir, 1) == -1)
-{
+if (setenv("PWD", currentpwd, 1) == -1) {
 perror("setenv");
+free(oldpwd);
+free(currentpwd);
 return (-1);
 }
+
+printf("%s\n", currentpwd);
+if (setenv("OLDPWD", oldpwd, 1) == -1) {
+
+perror("setenv");
+free(oldpwd);
+free(currentpwd);
+return (-1);
+}
+
+free(oldpwd);
+free(currentpwd);
 
 return (0);
 }

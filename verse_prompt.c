@@ -82,28 +82,27 @@ fprintf(stderr, "Failed to unset environment variable.\n");
 }
 continue;
 }
-if (strncmp(input, "cd", 2) == 0) 
+
+else if (strncmp(input, "cd", 2) == 0)
 {
 count = custom_tokenize(input, args);
-if (count > 1) 
-{
-if (change_directory(args[1]) != 0) 
+if (count > 1) {
+if (change_directory(args[1]) != 0)
 {
 fprintf(stderr, "cd: Unable to change directory\n");
 }
-}
-else
-{
+} else {
 home_dir = getenv("HOME");
-if (home_dir != NULL)
-{
+if (home_dir != NULL) {
 if (change_directory(home_dir) != 0)
 {
 fprintf(stderr, "cd: Unable to change directory\n");
 }
 }
 }
+continue;
 }
+
 if (strcmp(input, "env") == 0)
 {
 env = environ;

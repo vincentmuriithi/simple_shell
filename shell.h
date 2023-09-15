@@ -19,7 +19,7 @@ void handleCommand(char *command);
 int check_command(const char *command, const char *path, char *full_path, size_t buf_size);
 void error_exit(int exit_code, const char *message);
 int custom_tokenize(char *input, char **args);
-int change_directory(char *new_dir);
+int change_directory(const char *path);
 char *my_getline(void);
 
 #endif
