@@ -26,6 +26,7 @@ char *setenv_args[3];
 int setenv_count = 0;
 char *unsetenv_args[2];
 int unsetenv_count = 0;
+char *home_dir = NULL;
 
 if (path == NULL)
 error_exit(1, "Failed to get PATH environment variable");
@@ -81,7 +82,28 @@ fprintf(stderr, "Failed to unset environment variable.\n");
 }
 continue;
 }
-
+if (strncmp(input, "cd", 2) == 0) 
+{
+count = custom_tokenize(input, args);
+if (count > 1) 
+{
+if (change_directory(args[1]) != 0) 
+{
+fprintf(stderr, "cd: Unable to change directory\n");
+}
+}
+else
+{
+home_dir = getenv("HOME");
+if (home_dir != NULL)
+{
+if (change_directory(home_dir) != 0)
+{
+fprintf(stderr, "cd: Unable to change directory\n");
+}
+}
+}
+}
 if (strcmp(input, "env") == 0)
 {
 env = environ;
