@@ -11,9 +11,22 @@ int change_directory(const char *path)
 {
 char *oldpwd = NULL;
 char *currentpwd = NULL;
+char *previous_dir = NULL;
+
+if (path != NULL && strcmp(path, "-") == 0)
+{
+previous_dir = getenv("OLDPWD");
+if (previous_dir == NULL)
+{
+fprintf(stderr, "cd: OLDPWD not set\n");
+return (-1);
+}
+path = previous_dir;
+}
 
 oldpwd = getcwd(NULL, 0);
-if (oldpwd == NULL) {
+if (oldpwd == NULL)
+{
 perror("getcwd");
 return (-1);
 }
@@ -25,13 +38,15 @@ return (-1);
 }
 
 currentpwd = getcwd(NULL, 0);
-if (currentpwd == NULL) {
+if (currentpwd == NULL)
+{
 perror("getcwd");
 free(oldpwd);
 return (-1);
 }
 
-if (setenv("PWD", currentpwd, 1) == -1) {
+if (setenv("PWD", currentpwd, 1) == -1)
+{
 perror("setenv");
 free(oldpwd);
 free(currentpwd);
@@ -39,7 +54,8 @@ return (-1);
 }
 
 printf("%s\n", currentpwd);
-if (setenv("OLDPWD", oldpwd, 1) == -1) {
+if (setenv("OLDPWD", oldpwd, 1) == -1)
+{
 
 perror("setenv");
 free(oldpwd);
