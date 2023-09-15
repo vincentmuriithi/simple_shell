@@ -9,6 +9,7 @@
 #include <sys/stat.h>
 #include <string.h>
 #include <sys/wait.h>
+#include <limits.h>
 
 #define MAX_INPUT_LENGTH 1024
 #define BUFFER_SIZE 1024
