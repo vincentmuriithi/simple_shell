@@ -15,6 +15,7 @@ int main(void)
 char *args[32];
 pid_t pid;
 int count = 0;
+int should_execute;
 char **env = NULL;
 char *path = getenv("PATH");
 char *input = NULL;
@@ -29,10 +30,7 @@ char *commands[32];
 int command_count = 0;
 char *command = NULL;
 int i;
-char *cmd1 = NULL;
-                char *cmd2 = NULL;
-int cmd1_status = 0;
-int cmd_status;
+
 if (path == NULL)
 error_exit(1, "Failed to get PATH environment variable");
 
@@ -47,38 +45,8 @@ command_count = custom_tokenize(input, commands, ";");
 for (i = 0; i < command_count; i++)
 {
 command = commands[i];
-if (strstr(command, "&&"))
-            {
-                cmd1 = strtok(command, "&&");
-                cmd2 = strtok(NULL, "&&");
-                if (cmd1 && cmd2)
-                {
-                    cmd1_status = execute_command(cmd1);
-                    if (cmd1_status != 0)
-                    {
-                        continue;
-                    }
-                }
-            }
-            else if (strstr(command, "||"))
-            {
-                cmd1 = strtok(command, "||");
-                cmd2 = strtok(NULL, "||");
-                if (cmd1 && cmd2)
-                {
-                    cmd1_status = execute_command(cmd1);
-                    if (cmd1_status == 0)
-                    {
-                        continue;
-                    }
-                }
-            }
+should_execute = 1;
 
-            cmd_status = execute_command(command);
-            if (cmd_status != 0)
-            {
-                printf("Command failed: %s\n", command);
-            }
 if (strcmp(command, "exit") == 0)
 {
 exit(0);
@@ -152,6 +120,51 @@ printf("%s\n", *env);
 env++;
 }
 }
+if (strstr(command, "&&"))
+{
+char *cmd1 = strtok(command, "&&");
+char *cmd2 = strtok(NULL, "&&");
+if (cmd1 && cmd2)
+{
+int cmd1_status = execute_command(cmd1);
+if (cmd1_status != 0)
+{
+should_execute = 0;
+}
+}
+}
+else if (strstr(command, "||"))
+{
+char *cmd1 = strtok(command, "||");
+char *cmd2 = strtok(NULL, "||");
+if (cmd1 && cmd2)
+{
+int cmd1_status = execute_command(cmd1);
+if (cmd1_status == 0)
+{
+should_execute = 0;
+}
+}
+}
+
+if (should_execute)
+{
+count = custom_tokenize(command, args, " ");
+args[count] = NULL;
+pid = fork();
+if (pid == -1)
+{
+perror("Fork failed");
+exit(1);
+}
+else if (pid == 0)
+{
+if (execvp(args[0], args) == -1)
+{
+perror("Exec failed");
+exit(1);
+}
+}
 else
 {
 count = custom_tokenize(command, args, " ");
@@ -168,6 +181,16 @@ if (execvp(args[0], args) == -1)
 {
 perror("Exec failed");
 exit(1);
+}
+}
+else
+{
+int status;
+waitpid(pid, &status, 0);
+if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
+{
+printf("Command not found: %s\n", args[0]);
+}
 }
 }
 else
