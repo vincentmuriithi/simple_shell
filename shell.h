@@ -21,4 +21,5 @@ void error_exit(int exit_code, const char *message);
 int change_directory(const char *path);
 char *my_getline(void);
 int custom_tokenize(char *input, char **args, const char *delimiter);
+int execute_command(const char *command);
 #endif

@@ -29,7 +29,10 @@ char *commands[32];
 int command_count = 0;
 char *command = NULL;
 int i;
-
+char *cmd1 = NULL;
+                char *cmd2 = NULL;
+int cmd1_status = 0;
+int cmd_status;
 if (path == NULL)
 error_exit(1, "Failed to get PATH environment variable");
 
@@ -44,7 +47,38 @@ command_count = custom_tokenize(input, commands, ";");
 for (i = 0; i < command_count; i++)
 {
 command = commands[i];
+if (strstr(command, "&&"))
+            {
+                cmd1 = strtok(command, "&&");
+                cmd2 = strtok(NULL, "&&");
+                if (cmd1 && cmd2)
+                {
+                    cmd1_status = execute_command(cmd1);
+                    if (cmd1_status != 0)
+                    {
+                        continue;
+                    }
+                }
+            }
+            else if (strstr(command, "||"))
+            {
+                cmd1 = strtok(command, "||");
+                cmd2 = strtok(NULL, "||");
+                if (cmd1 && cmd2)
+                {
+                    cmd1_status = execute_command(cmd1);
+                    if (cmd1_status == 0)
+                    {
+                        continue;
+                    }
+                }
+            }
 
+            cmd_status = execute_command(command);
+            if (cmd_status != 0)
+            {
+                printf("Command failed: %s\n", command);
+            }
 if (strcmp(command, "exit") == 0)
 {
 exit(0);
