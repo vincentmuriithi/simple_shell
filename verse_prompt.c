@@ -210,7 +210,8 @@ int cmd1_status = execute_command(cmd1);
 if (cmd1_status == 0) {
 should_execute = 0;
 }
-
+}
+}
 if (should_execute) {
 char* substituted_input = substitute_alias(command);
 count = custom_tokenize(substituted_input, args, " ");
