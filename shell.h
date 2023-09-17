@@ -22,4 +22,6 @@ int change_directory(const char *path);
 char *my_getline(void);
 int custom_tokenize(char *input, char **args, const char *delimiter);
 int execute_command(const char *command);
+char* join_tokens(char** tokens, int count, const char* delimiter);
+
 #endif

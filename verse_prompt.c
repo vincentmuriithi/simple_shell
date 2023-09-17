@@ -11,7 +11,6 @@
 #define MAX_ALIASES 32
 extern char **environ;
 
-
 typedef struct {
 char *name;
 char *value;
@@ -34,79 +33,81 @@ return (-1);
 void print_aliases(int argc, char *argv[]) {
 int i;
 
-if (argc == 1)
-{
-for (i = 0; i < alias_count; i++)
-{
+if (argc == 1) {
+for (i = 0; i < alias_count; i++) {
 printf("alias %s='%s'\n", aliases[i].name, aliases[i].value);
 }
-}
-else {
-
-for (i = 1; i < argc; i++)
-{
+} else {
+for (i = 1; i < argc; i++) {
 int alias_index = find_alias(argv[i]);
-if (alias_index != -1)
-{
+if (alias_index != -1) {
 printf("alias %s='%s'\n", aliases[alias_index].name, aliases[alias_index].value);
 }
 }
 }
 }
 
-void define_alias(const char *name, const char *value)
-{
+void define_alias(const char *name, const char *value) {
 int alias_index = find_alias(name);
-if (alias_index != -1)
-{
+if (alias_index != -1) {
 free(aliases[alias_index].value);
 aliases[alias_index].value = strdup(value);
-}
-else
-{
-if (alias_count < MAX_ALIASES)
-{
+} else {
+if (alias_count < MAX_ALIASES) {
 aliases[alias_count].name = strdup(name);
 aliases[alias_count].value = strdup(value);
 alias_count++;
-}
-else
-{
+} else {
 fprintf(stderr, "Too many aliases. Cannot define alias %s='%s'\n", name, value);
 }
 }
 }
 
 void handle_alias_command(char *command) {
-
 char *alias_args[32];
 int alias_count = custom_tokenize(command, alias_args, " ");
 int j;
 if (alias_count >= 2) {
-if (alias_count == 2)
-{
-
+if (alias_count == 2) {
 print_aliases(1, alias_args);
 } else {
-
-for (j = 1; j < alias_count; j++)
-{
+for (j = 1; j < alias_count; j++) {
 char *alias_def = alias_args[j];
 char *name = alias_def;
 char *value = strchr(alias_def, '=');
-if (value != NULL)
-{
+if (value != NULL) {
 *value = '\0';
 value++;
 define_alias(name, value);
 }
 }
 }
-} else
-{
+} else {
 fprintf(stderr, "Usage: alias [name[='value'] ...]\n");
 }
 }
+
+char* substitute_alias(char* input)
+{
+char* args[32];
+int count = custom_tokenize(input, args, " ");
+int i;
+char* substituted_input = NULL;
+
+for (i = 0; i < count; i++)
+{
+int alias_index = find_alias(args[i]);
+if (alias_index != -1)
+{
+free(args[i]);
+args[i] = strdup(aliases[alias_index].value);
+}
+}
+
+substituted_input = join_tokens(args, count, " ");
+return (substituted_input);
+}
+
 int main(void) {
 char *args[32];
 pid_t pid;
@@ -126,7 +127,6 @@ char *commands[32];
 int command_count = 0;
 char *command = NULL;
 int i;
-
 
 if (path == NULL)
 error_exit(1, "Failed to get PATH environment variable");
@@ -182,23 +182,15 @@ fprintf(stderr, "cd: Unable to change directory\n");
 }
 }
 }
-}
-else if (strcmp(command, "env") == 0)
-{
+} else if (strcmp(command, "env") == 0) {
 env = environ;
-while (*env)
-{
+while (*env) {
 printf("%s\n", *env);
 env++;
 }
-}
-else if (strncmp(command, "alias", 5) == 0) {
-
+} else if (strncmp(command, "alias", 5) == 0) {
 handle_alias_command(command);
-}
-
-else
-{
+} else {
 count = custom_tokenize(command, args, " ");
 
 if (strstr(command, "&&")) {
@@ -218,12 +210,13 @@ int cmd1_status = execute_command(cmd1);
 if (cmd1_status == 0) {
 should_execute = 0;
 }
-}
-}
 
 if (should_execute) {
+char* substituted_input = substitute_alias(command);
+count = custom_tokenize(substituted_input, args, " ");
 args[count] = NULL;
 pid = fork();
+
 if (pid == -1) {
 perror("Fork failed");
 exit(1);
@@ -239,11 +232,13 @@ if (WIFEXITED(status) && WEXITSTATUS(status) != 0) {
 printf("Command not found: %s\n", args[0]);
 }
 }
+
+free(substituted_input);
 }
+
 }
 }
 }
 
 return (0);
 }
-
