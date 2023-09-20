@@ -8,24 +8,16 @@
 
 #define MAX_INPUT_LENGTH 1024
 extern char **environ;
-/**
-* main - entry of program
-* Return: 0 upon success
-*/
+
 int main(void)
 {
-char *args[32];
+int exec_status;
+char *args[32], **env = NULL, *input = NULL;
 pid_t pid;
-int count = 0;
-char **env = NULL;
+int count = 0, status = 0;
+char *setenv_args[3], *unsetenv_args[2];
+int setenv_count = 0, unsetenv_count = 0;
 char *path = getenv("PATH");
-char *input = NULL;
-char *status_str = NULL;
-int status = 0;
-char *setenv_args[3];
-int setenv_count = 0;
-char *unsetenv_args[2];
-int unsetenv_count = 0;
 
 if (path == NULL)
 error_exit(1, "Failed to get PATH environment variable");
@@ -36,51 +28,12 @@ printf("($) ");
 input = my_getline();
 input[strcspn(input, "\n")] = '\0';
 
-if (strcmp(input, "exit") == 0)
-{
-exit(0);
-}
-else if (strncmp(input, "exit ", 5) == 0)
-{
-status_str = input + 5;
-status = atoi(status_str);
+if (handle_exit(input, &status))
 exit(status);
-}
-else if (strncmp(input, "setenv ", 7) == 0)
-{
-
-setenv_count = custom_tokenize(input, setenv_args);
-
-if (setenv_count != 3)
-{
-fprintf(stderr, "Usage: setenv VARIABLE VALUE\n");
-}
-else
-{
-if (setenv(setenv_args[1], setenv_args[2], 1) != 0)
-{
-fprintf(stderr, "Failed to set environment variable.\n");
-}
-}
+else if (handle_setenv(input, setenv_args, &setenv_count))
 continue;
-}
-else if (strncmp(input, "unsetenv ", 9) == 0)
-{
-unsetenv_count = custom_tokenize(input, unsetenv_args);
-
-if (unsetenv_count != 2)
-{
-fprintf(stderr, "Usage: unsetenv VARIABLE\n");
-}
-else
-{
-if (unsetenv(unsetenv_args[1]) != 0)
-{
-fprintf(stderr, "Failed to unset environment variable.\n");
-}
-}
+else if (handle_unsetenv(input, unsetenv_args, &unsetenv_count))
 continue;
-}
 
 if (strcmp(input, "env") == 0)
 {
@@ -93,33 +46,15 @@ env++;
 continue;
 }
 
-
 count = custom_tokenize(input, args);
 args[count] = NULL;
-pid = fork();
-if (pid == -1)
-{
-perror("Fork failed");
-exit(1);
-}
-else if (pid == 0)
-{
 
-if (execvp(args[0], args) == -1)
-{
-perror("Exec failed");
-exit(1);
-}
-}
-else
-{
-int status;
-waitpid(pid, &status, 0);
-if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
-{
+if (handle_execute(args, &pid) == -1)
+perror("Fork failed");
+
+
+if (wait_and_check(&pid, &exec_status) && WIFEXITED(exec_status) && WEXITSTATUS(exec_status) != 0)
 printf("Command not found: %s\n", args[0]);
-}
-}
 }
 
 return (0);
