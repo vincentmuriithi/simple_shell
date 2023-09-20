@@ -9,7 +9,6 @@
 #include <sys/stat.h>
 #include <string.h>
 #include <sys/wait.h>
-#include <limits.h>
 
 #define MAX_INPUT_LENGTH 1024
 #define BUFFER_SIZE 1024
@@ -18,8 +17,8 @@
 void handleCommand(char *command);
 int check_command(const char *command, const char *path, char *full_path, size_t buf_size);
 void error_exit(int exit_code, const char *message);
-int change_directory(const char *path);
+int custom_tokenize(char *input, char **args);
+
 char *my_getline(void);
-int custom_tokenize(char *input, char **args, const char *delimiter);
-int execute_command(const char *command);
+
 #endif

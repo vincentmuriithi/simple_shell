@@ -1,5 +1,4 @@
 #include "shell.h"
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -9,13 +8,15 @@
 
 #define MAX_INPUT_LENGTH 1024
 extern char **environ;
-
+/**
+* main - entry of program
+* Return: 0 upon success
+*/
 int main(void)
 {
 char *args[32];
 pid_t pid;
 int count = 0;
-int should_execute;
 char **env = NULL;
 char *path = getenv("PATH");
 char *input = NULL;
@@ -25,11 +26,6 @@ char *setenv_args[3];
 int setenv_count = 0;
 char *unsetenv_args[2];
 int unsetenv_count = 0;
-char *home_dir = NULL;
-char *commands[32];
-int command_count = 0;
-char *command = NULL;
-int i;
 
 if (path == NULL)
 error_exit(1, "Failed to get PATH environment variable");
@@ -40,26 +36,20 @@ printf("($) ");
 input = my_getline();
 input[strcspn(input, "\n")] = '\0';
 
-command_count = custom_tokenize(input, commands, ";");
-
-for (i = 0; i < command_count; i++)
-{
-command = commands[i];
-should_execute = 1;
-
-if (strcmp(command, "exit") == 0)
+if (strcmp(input, "exit") == 0)
 {
 exit(0);
 }
-else if (strncmp(command, "exit ", 5) == 0)
+else if (strncmp(input, "exit ", 5) == 0)
 {
-status_str = command + 5;
+status_str = input + 5;
 status = atoi(status_str);
 exit(status);
 }
-else if (strncmp(command, "setenv ", 7) == 0)
+else if (strncmp(input, "setenv ", 7) == 0)
 {
-setenv_count = custom_tokenize(command, setenv_args, " ");
+
+setenv_count = custom_tokenize(input, setenv_args);
 
 if (setenv_count != 3)
 {
@@ -69,13 +59,14 @@ else
 {
 if (setenv(setenv_args[1], setenv_args[2], 1) != 0)
 {
-perror("setenv");
+fprintf(stderr, "Failed to set environment variable.\n");
 }
 }
+continue;
 }
-else if (strncmp(command, "unsetenv ", 9) == 0)
+else if (strncmp(input, "unsetenv ", 9) == 0)
 {
-unsetenv_count = custom_tokenize(command, unsetenv_args, " ");
+unsetenv_count = custom_tokenize(input, unsetenv_args);
 
 if (unsetenv_count != 2)
 {
@@ -85,33 +76,13 @@ else
 {
 if (unsetenv(unsetenv_args[1]) != 0)
 {
-perror("unsetenv");
+fprintf(stderr, "Failed to unset environment variable.\n");
 }
 }
+continue;
 }
-else if (strncmp(command, "cd", 2) == 0)
-{
-count = custom_tokenize(command, args, " ");
-if (count > 1)
-{
-if (change_directory(args[1]) != 0)
-{
-fprintf(stderr, "cd: Unable to change directory\n");
-}
-}
-else
-{
-home_dir = getenv("HOME");
-if (home_dir != NULL)
-{
-if (change_directory(home_dir) != 0)
-{
-fprintf(stderr, "cd: Unable to change directory\n");
-}
-}
-}
-}
-else if (strcmp(command, "env") == 0)
+
+if (strcmp(input, "env") == 0)
 {
 env = environ;
 while (*env)
@@ -119,40 +90,11 @@ while (*env)
 printf("%s\n", *env);
 env++;
 }
-}
-else
-{
-count = custom_tokenize(command, args, " ");
-
-if (strstr(command, "&&"))
-{
-char *cmd1 = strtok(command, "&&");
-char *cmd2 = strtok(NULL, "&&");
-if (cmd1 && cmd2)
-{
-int cmd1_status = execute_command(cmd1);
-if (cmd1_status != 0)
-{
-should_execute = 0;
-}
-}
-}
-else if (strstr(command, "||"))
-{
-char *cmd1 = strtok(command, "||");
-char *cmd2 = strtok(NULL, "||");
-if (cmd1 && cmd2)
-{
-int cmd1_status = execute_command(cmd1);
-if (cmd1_status == 0)
-{
-should_execute = 0;
-}
-}
+continue;
 }
 
-if (should_execute)
-{
+
+count = custom_tokenize(input, args);
 args[count] = NULL;
 pid = fork();
 if (pid == -1)
@@ -162,6 +104,7 @@ exit(1);
 }
 else if (pid == 0)
 {
+
 if (execvp(args[0], args) == -1)
 {
 perror("Exec failed");
@@ -178,10 +121,6 @@ printf("Command not found: %s\n", args[0]);
 }
 }
 }
-}
-}
-}
 
 return (0);
 }
-
