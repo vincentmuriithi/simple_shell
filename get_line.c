@@ -1,19 +1,24 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include "shell.h"
-/**
-* my_getline - reads a line from srandard input
-* Return: pointer
-*/
-char *my_getline(void)
+char* my_getline(void)
 {
-char *line = NULL;
-size_t bufsize = 0;
+char* line = NULL;
+size_t len = 0;
+ssize_t read;
 
-if (getline(&line, &bufsize, stdin) == -1)
+
+read = getdelim(&line, &len, '\n', stdin);
+
+if (read == -1)
 {
-perror("getline");
-exit(EXIT_FAILURE);
+perror("getdelim");
+free(line);
+return (NULL);
 }
+
+if (read > 0 && line[read - 1] == '\n')
+{
+line[read - 1] = '\0';
+}
+
 return (line);
 }
