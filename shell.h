@@ -3,22 +3,30 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
+#include <sys/wait.h>
 #include <fcntl.h>
+#include <signal.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <string.h>
-#include <sys/wait.h>
+#include <ctype.h>
 
-#define MAX_INPUT_LENGTH 1024
-#define BUFFER_SIZE 1024
-#define DELIMITERS " \t\r\n\a"
+extern char **environ;
 
-void handleCommand(char *command);
-int check_command(const char *command, const char *path, char *full_path, size_t buf_size);
-void error_exit(int exit_code, const char *message);
-int custom_tokenize(char *input, char **args);
+void type_prompt(void);
+int handle_builtins(char *command, char **parameters);
+void read_command(char cmd[], char *par[]);
+void execute_command(char *command, char **parameters);
+void execute_external_command(char *command, char **parameters);
 
-char *my_getline(void);
+int _strlen(char *s);
+char *_strcat(char *dest, char *src);
+int _strcmp(char *s1, char *s2);
+char *_strcpy(char *dest, char *src);
+char *_strdup(const char *str);
+
+int _atoi(char *s);
 
 #endif
+
