@@ -52,10 +52,10 @@ args[count] = NULL;
 if (handle_execute(args, &pid) == -1)
 perror("Fork failed");
 
-
 if (wait_and_check(&pid, &exec_status) && WIFEXITED(exec_status) && WEXITSTATUS(exec_status) != 0)
-printf("Command not found: %s\n", args[0]);
-}
+printf("/");
 
+
+}
 return (0);
 }

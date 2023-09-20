@@ -47,7 +47,7 @@ error_exit(1, "Fork failed");
 else if (pid == 0)
 {
 execv(full_path, args);
-error_exit(1, "Exec failed");
+error_exit(1, "Exec failed:");
 }
 else
 {

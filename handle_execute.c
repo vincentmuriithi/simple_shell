@@ -15,7 +15,7 @@ else if (*pid == 0)
 {
 if (execvp(args[0], args) == -1)
 {
-perror("Exec failed");
+perror("./shell");
 exit(1);
 }
 }
