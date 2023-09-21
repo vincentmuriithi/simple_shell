@@ -1,33 +1,44 @@
-#include "shell.h"
+#include "ourshell.h"
+
 /**
-* custom_tokenize - Tokenize a string based on spaces
-* @input: The input string
-* @args: An array to store the tokens
-* Return: The number of tokens found
+* tokenize - a fxn dat separates d string using a designed delimiter
+* @data: a pointer 2 d prog's data
+* By Kene and Esther
+* Return: an array of d diff parts of d string
 */
-int custom_tokenize(char *input, char **args)
+void tokenize(data_of_program *data)
 {
-int arg_count = 0;
-char *token;
-char *delimiter = " ";
+char *delimiter = " \t";
+int m, q, counter = 2, length;
 
-while (input && *input)
+length = str_length(data->input_line);
+if (length)
 {
-while (*input && strchr(delimiter, *input))
-input++;
+if (data->input_line[length - 1] == '\n')
+data->input_line[length - 1] = '\0';
+}
 
-if (*input)
+for (m = 0; data->input_line[m]; m++)
 {
-token = input;
-while (*input && !strchr(delimiter, *input))
-input++;
-
-if (*input)
-*input++ = '\0';
-args[arg_count++] = token;
+for (q = 0; delimiter[q]; q++)
+{
+if (data->input_line[q] == delimiter[q])
+counter++;
 }
 }
 
-args[arg_count] = NULL;
-return (arg_count);
+data->tokens = malloc(counter * sizeof(char *));
+if (data->tokens == NULL)
+{
+perror(data->program_name);
+exit(errno);
 }
+m = 0;
+data->tokens[m] = str_duplicate(_strtok(data->input_line, delimiter));
+data->command_name = str_duplicate(data->tokens[0]);
+while (data->tokens[m++])
+{
+data->tokens[m] = str_duplicate(_strtok(NULL, delimiter));
+}
+}
+
