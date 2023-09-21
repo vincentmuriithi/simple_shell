@@ -60,7 +60,7 @@ char *fetch_alias(program_data  *data, char *name);
 int write_alias(char *string_alias, program_data *data);
 
 /*2 allow 2 read a line frm cmd prompt*/
-int _getlines(program_data * data);
+int _getlines(program_data *data);
 
 /*2 check 4 logical operators nd split*/
 int check_ops_logic(char *array_of_commands[], int m,
