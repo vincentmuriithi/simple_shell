@@ -8,7 +8,11 @@
 */
 int _print(char *string)
 {
+if (string != NULL)
+{
 return (write(STDOUT_FILENO, string, str_length(string)));
+}
+return (0);
 }
 
 
@@ -20,7 +24,11 @@ return (write(STDOUT_FILENO, string, str_length(string)));
 */
 int _printe(char *string)
 {
+if (string != NULL)
+{
 return (write(STDERR_FILENO, string, str_length(string)));
+}
+return (0);
 }
 
 /**
