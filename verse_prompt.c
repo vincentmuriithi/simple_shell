@@ -1,15 +1,14 @@
-#include "ourshell.h"
+#include "shell.h"
 /**
-* main - a fxn dat initialize d variables of d prog
-* @argc: d arg count
-* By Kene and Esther
-* @argv: d arg value
-* @env: d numb of values received frm d cmd line
+* main - entry of main program
+* @argc: argument count
+* @argv: argument value
+* @env: number  of values received from the command line
 * Return: Nothing (zero on succes).
 */
 int main(int argc, char *argv[], char *env[])
 {
-data_of_program data_struct = {NULL}, *data = &data_struct;
+program_data  data_struct = {NULL}, *data = &data_struct;
 char *prompt = "";
 
 inicialize_data(data, argc, argv, env);
@@ -17,8 +16,8 @@ inicialize_data(data, argc, argv, env);
 signal(SIGINT, handle_ctrl_c);
 
 if (isatty(STDIN_FILENO) && isatty(STDOUT_FILENO) && argc == 1)
-{/* We re in d terminal, interactive mode */
-errno = 2;/*???????*/
+{
+errno = 2;
 prompt = PROMPT_MSG;
 }
 errno = 0;
@@ -28,10 +27,9 @@ return (0);
 
 
 /**
-* handle_ctrl_c - a fxn dat prints d prompt in a new line when d signal SIGINT
-* which is ctrl + c is sent 2 d prog
+* handle_ctrl_c - prints the prompt in a new line when d signal SIGINT
+* which is ctrl + c is sent to the program
 * @UNUSED: option of d prototype
-* By Kene and Esther
 */
 void handle_ctrl_c(int opr UNUSED)
 {
@@ -40,14 +38,13 @@ _print(PROMPT_MSG);
 }
 
 /**
-* inicialize_data - a fxn dat inicialize d structure wit d info of d prog
-* @data: a pointer 2 d structure of d data
-* @argv: an array of arg passed 2 d prog execution
-* @env: d environ passed 2 d prog execution
+* inicialize_data - initialize the structure with the info of the program
+* @data: a pointer to d structure of the data
+* @argv: an array of arg passed to d prog execution
+* @env: d environ passed to d prog execution
 * @argc: d numb of values received frm d cmd line
-* By Kene and Esther
 */
-void inicialize_data(data_of_program *data, int argc, char *argv[], char **env)
+void inicialize_data(program_data *data, int argc, char *argv[], char **env)
 {
 int t = 0;
 
@@ -55,7 +52,8 @@ data->program_name = argv[0];
 data->input_line = NULL;
 data->command_name = NULL;
 data->exec_counter = 0;
-/* define d file descriptor 2 be readed*/
+
+/* define the file descriptor to be read*/
 if (argc == 1)
 data->file_descriptor = STDIN_FILENO;
 else
@@ -91,12 +89,11 @@ data->alias_list[t] = NULL;
 
 
 /**
-* sisifo - a fxn of an infinite loop dat shows d prompt
-* @prompt: d prompt 2 be printed
-* By Kene and Esther
+* sisifo - infinite loop dat shows the prompt
+* @prompt: prompt to  be printed
 * @data: an infinite loop dat shows d prompt
 */
-void sisifo(char *prompt, data_of_program *data)
+void sisifo(char *prompt, program_data  *data)
 {
 int error_code = 0, string_len = 0;
 

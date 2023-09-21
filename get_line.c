@@ -16,7 +16,7 @@ if (!array_of_commands[0] || (array_of_operators[0] == '&' && errno != 0) || (
 array_of_operators[0] == '|' && errno == 0))
 {
 
-	for (m = 0; array_of_commands[m]; m++)
+for (m = 0; array_of_commands[m]; m++)
 {
 free(array_of_commands[m]);
 array_of_commands[m] = NULL;
@@ -64,7 +64,7 @@ for (q = 0; array_of_commands[m] != NULL && array_of_commands[m][q]; q++)
 if (array_of_commands[m][q] == '&' && array_of_commands[m][q + 1] == '&')
 {
 
-	temporary = array_of_commands[m];
+temporary = array_of_commands[m];
 array_of_commands[m][q] = '\0';
 array_of_commands[m] = str_duplicate(array_of_commands[m]);
 array_of_commands[m + 1] = str_duplicate(temporary + q + 2);
@@ -75,7 +75,7 @@ free(temporary);
 if (array_of_commands[m][q] == '|' && array_of_commands[m][q + 1] == '|')
 {
 
-	temporary = array_of_commands[m];
+temporary = array_of_commands[m];
 array_of_commands[m][q] = '\0';
 array_of_commands[m] = str_duplicate(array_of_commands[q]);
 array_of_commands[m + 1] = str_duplicate(temporary + q + 2);

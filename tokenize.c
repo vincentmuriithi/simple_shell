@@ -1,12 +1,11 @@
-#include "ourshell.h"
+#include "shell.h"
 
 /**
-* tokenize - a fxn dat separates d string using a designed delimiter
-* @data: a pointer 2 d prog's data
-* By Kene and Esther
+* tokenize - separates the string using a designed delimiter
+* @data: a pointer to the program's data
 * Return: an array of d diff parts of d string
 */
-void tokenize(data_of_program *data)
+void tokenize(program_data *data)
 {
 char *delimiter = " \t";
 int m, q, counter = 2, length;

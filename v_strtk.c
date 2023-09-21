@@ -1,10 +1,10 @@
-#include "ourshell.h"
+#include "shell.h"
 /**
-* _strtok - a fxn dat separates strings wit delimiters
+* _strtok - separates strings wit delimiters
 * By Kene and Esther
-* @line: a pointer 2 array we received in getline.
+* @line: a pointer to array we received in getline.
 * @delimiters: a char we mark off string in parts.
-* Return: a pointer 2 d created token
+* Return: a pointer to the created token
 */
 char *_strtok(char *line, char *delimiters)
 {

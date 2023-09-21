@@ -83,7 +83,7 @@ data->input_line = str_duplicate(lines);
 /**
 * add_to_buffer - append to buffer
 * @buffer: The buffer
-* @strings: string 
+* @strings: string
 * Return: returns verse_len
 */
 int add_to_buffer(char *buffer, char *strings)

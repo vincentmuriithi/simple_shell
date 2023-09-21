@@ -1,11 +1,10 @@
-#include "ourshell.h"
+#include "shell.h"
 /**
-* execution - a fxn dat execute cmd
-* By Kene and Esther
-* @data: The structure 4 program data
+* execution - execute command
+* @data: The structure for program data
 * Return: 0 on success, -1 on failure
 */
-int execution(data_of_program *data)
+int execution(program_data *data)
 {
 int r_value = 0, stat;
 pid_t pid;

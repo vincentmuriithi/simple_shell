@@ -1,11 +1,10 @@
-#include "ourshell.h"
+#include "shell.h"
 /**
-* list_of_builtins - a fxn dat search nd execute builtins match
-* By Kene and Esther
-* @data: d structure 4 prog data
-* Return: a fxn executed of -1 on failure
+* list_of_builtins - search and execute builtins match
+* @data: structure for program data
+* Return: a function executed of -1 on failure
 */
-int list_of_builtins(data_of_program *data)
+int list_of_builtins(program_data *data)
 {
 int t;
 builtins options[] = {
