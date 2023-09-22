@@ -1,124 +1,131 @@
 #include "shell.h"
-/**
-* main - entry of main program
-* @argc: argument count
-* @argv: argument value
-* @env: number  of values received from the command line
-* Return: Nothing (zero on succes).
-*/
-int main(int argc, char *argv[], char *env[])
-{
-program_data  data_struct = {NULL}, *data = &data_struct;
-char *prompt = "";
 
-inicialize_data(data, argc, argv, env);
-
-signal(SIGINT, handle_ctrl_c);
-
-if (isatty(STDIN_FILENO) && isatty(STDOUT_FILENO) && argc == 1)
-{
-errno = 2;
-prompt = PROMPT_MSG;
-}
-errno = 0;
-sisifo(prompt, data);
-return (0);
-}
-
+void sig_handler(int signal);
+int execute(char **args, char **front);
 
 /**
-* handle_ctrl_c - prints the prompt in a new line when d signal SIGINT
-* which is ctrl + c is sent to the program
-* @UNUSED: option of d prototype
+* sig_handler - Prints a new prompt upon a signal.
+* @sig: The signal.
 */
-void handle_ctrl_c(int opr UNUSED)
+void sig_handler(int signal)
 {
-_print("\n");
-_print(PROMPT_MSG);
+char *new_prompt = "\n$ ";
+
+(void)sig;
+signal(SIGINT, sig_handler);
+write(STDIN_FILENO, new_prompt, 3);
 }
 
 /**
-* inicialize_data - initialize the structure with the info of the program
-* @data: a pointer to d structure of the data
-* @argv: an array of arg passed to d prog execution
-* @env: d environ passed to d prog execution
-* @argc: d numb of values received frm d cmd line
+* execute - Executes a command in a child process.
+* @args: An array of arguments.
+* @front: A double pointer to the beginning of args.
+* Return: If an error occurs - a corresponding error code.
 */
-void inicialize_data(program_data *data, int argc, char *argv[], char **env)
+int execute(char **args, char **front)
 {
-int t = 0;
+pid_t child_pid;
+int status, flag = 0, ret = 0;
+char *command = args[0];
 
-data->program_name = argv[0];
-data->input_line = NULL;
-data->command_name = NULL;
-data->exec_counter = 0;
+if (command[0] != '/' && command[0] != '.')
+{
+flag = 1;
+command = get_location(command);
+}
 
-/* define the file descriptor to be read*/
-if (argc == 1)
-data->file_descriptor = STDIN_FILENO;
+if (!command || (access(command, F_OK) == -1))
+{
+if (errno == EACCES)
+ret = (create_error(args, 126));
+else
+ret = (create_error(args, 127));
+}
 else
 {
-data->file_descriptor = open(argv[1], O_RDONLY);
-if (data->file_descriptor == -1)
+child_pid = fork();
+if (child_pid == -1)
 {
-_printe(data->program_name);
-_printe(": 0: Can't open ");
-_printe(argv[1]);
-_printe("\n");
-exit(127);
+if (flag)
+free(command);
+perror("Error child:");
+return (1);
 }
-}
-data->tokens = NULL;
-data->env = malloc(sizeof(char *) * 50);
-if (env)
+if (child_pid == 0)
 {
-for (; env[t]; t++)
+execve(command, args, environ);
+if (errno == EACCES)
+ret = (create_error(args, 126));
+free_env();
+free_args(args, front);
+free_alias_list(aliases);
+_exit(ret);
+}
+else
 {
-data->env[t] = str_duplicate(env[t]);
+wait(&status);
+ret = WEXITSTATUS(status);
 }
 }
-data->env[t] = NULL;
-env = data->env;
-
-data->alias_list = malloc(sizeof(char *) * 20);
-for (t = 0; t < 20; t++)
-{
-data->alias_list[t] = NULL;
+if (flag)
+free(command);
+return (ret);
 }
-}
-
 
 /**
-* sisifo - infinite loop dat shows the prompt
-* @prompt: prompt to  be printed
-* @data: an infinite loop dat shows d prompt
+* main - Main entry of program
+* @argc: The number of arguments supplied to the program.
+* @argv: arguments
+* Return: The return value of the last executed command.
 */
-void sisifo(char *prompt, program_data  *data)
+int main(int argc, char *argv[])
 {
-int error_code = 0, string_len = 0;
+int ret = 0, retn;
+int *exe_ret = &retn;
+char *prompt = "$ ", *new_line = "\n";
 
-for (data->exec_counter = 1;; ++(data->exec_counter))
-{
-_print(prompt);
-error_code = string_len = _getlines(data);
+name = argv[0];
+hist = 1;
+aliases = NULL;
+signal(SIGINT, sig_handler);
 
-if (error_code == EOF)
+*exe_ret = 0;
+environ = _copyenv();
+if (!environ)
+exit(-100);
+
+if (argc != 1)
 {
-free_all_data(data);
-exit(errno);
+ret = proc_file_commands(argv[1], exe_ret);
+free_env();
+free_alias_list(aliases);
+return (*exe_ret);
 }
-if (string_len >= 1)
+
+if (!isatty(STDIN_FILENO))
 {
-alias_expansion(data);
-variables_expansion(data);
-tokenize(data);
-if (data->tokens[0])
+while (ret != END_OF_FILE && ret != EXIT)
+ret = handle_args(exe_ret);
+free_env();
+free_alias_list(aliases);
+return (*exe_ret);
+}
+
+while (1)
 {
-error_code = execution(data);
-if (error_code != 0)
-_print_error(error_code, data);
+write(STDOUT_FILENO, prompt, 2);
+ret = handle_args(exe_ret);
+if (ret == END_OF_FILE || ret == EXIT)
+{
+if (ret == END_OF_FILE)
+write(STDOUT_FILENO, new_line, 1);
+free_env();
+free_alias_list(aliases);
+exit(*exe_ret);
 }
-free_recurrent_data(data);
 }
-}
+
+free_env();
+free_alias_list(aliases);
+return (*exe_ret);
 }
